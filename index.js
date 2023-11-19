@@ -307,10 +307,10 @@ console.log(
  *
  * Функція повертає новий URL, який було сформовано на основі вхідного URL і параметрів обробки.
  */
-function processUrl(url, options) {let urlObj= new URL(url); 
-  if(options["searchParams"] !== "undefined") {for( const key in options.searchParams){ urlObj.searchParams.append(key, options.searchParams[key]);}} 
-  else if(options["protocol"] !== "undefined"){ urlObj.searchParams.set(protocol, options["protocol"]);} 
- else if(options["host"] !== "undefined"){ urlObj.searchParams.set(host, options["host"]);} return urlObj.href;
+function processUrl(url, options) {let urlObj = new URL(url); 
+  if(options.searchParams) {for( let key in options.searchParams){ urlObj.searchParams.append(key, options.searchParams[key]);}} 
+  if(options.protocol){ urlObj.protocol = options.protocol;} 
+ if(options.host){ urlObj.host = options.host;} return urlObj.href;
   // Створюємо новий об'єкт URL з вхідної URL-адреси.
   // Перевіряємо, чи в об'єкті 'options' є параметри пошуку.
   // Якщо є, перебираємо ці параметри за допомогою циклу 'for in'.
@@ -343,8 +343,8 @@ console.log(
  *
  * Повертається - Новий URL з модифікованими пошуковими параметрами.
  */
-function manipulateQuery(url, options) {let urlObj= new URL(url); if (options.append !== "undefined"){ for(const key of options){ urlObj.searchParams.append(key, options.key);}} 
-if (options.delete !== "undefined") { for(const key of options){ urlObj.searchParams.delete(key);}} return urlObj.href;
+function manipulateQuery(url, options) {let urlObj = new URL(url); if (options.has("append")){ for(let[key,value] of options.get("append")){ urlObj.searchParams.append(key, value);}} 
+if (options.has("delete")) { for(let value of options.get("delete")){ urlObj.searchParams.delete(value);}} return urlObj.href;
   // Створюємо новий об'єкт URL з вхідної URL-адреси.
   // Якщо в словнику `options` є ключ `append`...
   // ...перебираємо його ключі та значення за допомогою циклу for...of.
@@ -415,8 +415,10 @@ console.log(getUrlData("https://username:password@example.com:8080/path"));
  *
  * Функція повертає новий URL з відсортованими пошуковими параметрами за ключами у порядку зростання.
  */
-function sortUrlParams(url) { let urlObj= new URL(url); let arr=urlObj.searchParams.entries(); arr.sort(function(a, b){return a-b});
-delete urlObj.searchParams; 
+function sortUrlParams(url) { let urlObj = new URL(url); let paramsArray = Array.from(urlObj.searchParams.entries()); paramsArray.sort((a, b) => a[0] - b[0]);
+  urlObj.search = ""; paramsArray.forEach(([key, value]) => {
+    urlObj.searchParams.append(key, value);
+  });
 return urlObj.href;
 
   // Створюємо новий об'єкт URL з вхідної URL-адреси.
